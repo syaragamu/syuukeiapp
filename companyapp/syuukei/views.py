@@ -1,28 +1,32 @@
-from django.shortcuts import render
-from django.http import FileResponse
-import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import datetime    # Python 標準
-import numpy as np
-import openpyxl
-import seaborn as sns
-import glob
-import os
-from django.conf import settings
+
 def upload_file(request):
+    from django.shortcuts import render,redirect
+    from django.http import FileResponse,HttpResponse
+    import pandas as pd
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    import datetime    # Python 標準
+    import numpy as np
+    import openpyxl
+    import seaborn as sns
+    import glob
+    import os
+    from django.conf import settings
     if request.method == 'POST' and request.FILES.getlist('files'):
         files = request.FILES.getlist('files')
 
-        
+        print(files)
         
         #カレントディレクトリに含まれるファイル、フォルダを取得
-        files = glob.glob('*.xlsx')
+        #files = glob.glob('*.xlsx')
         #カレントディレクトリに含まれるファイル、フォルダの内容
-        #バグを防ぐために'集計.xlsx'を除く
-        files.remove('集計.xlsx')
+        #バグを防ぐために'集計.xlsx'を除く files.remove('集計.xlsx')
+        files = [file for file in files if str(file).endswith('.xlsx')]
+        files = [file for file in files if str(file) != '集計.xlsx']
+        print(files)
         #filesの中に含まれる名前を表示
-        files_except_name = [s.replace('.xlsx', '') for s in files]
+        files_except_name = [str(s).replace('.xlsx', '') for s in files]
+        print(files_except_name)
         #----------------------------------------
         # データ読込
         #----------------------------------------
@@ -41,10 +45,15 @@ def upload_file(request):
                 df_all = pd.concat([df_all, df_files], axis=0,ignore_index = True)
 
 
+        print(df_all)
+        #全体の大きさ確認用
+        df_all.shape
 
 
         #保険としてリストをコピー
         df_list = df_all
+        #列のindexを表示
+        df_list.columns
         #必要な部分以外を全部切り落とす
         df_list_cut = df_list.drop(['工数番号', '作業計上日', '事業部ｺｰﾄﾞ', '事業部名称', '部門ｺｰﾄﾞ', '部門略称',
         '所属部門ｺｰﾄﾞ', '所属部門名称',  '社内指示番号', '社内指示行番号', '製番',
@@ -52,7 +61,7 @@ def upload_file(request):
         '作業原価科目ｺｰﾄﾞ', '作業原価科目名称', '資源区分', '資源ｺｰﾄﾞ', '資源名称', '資源稼動開始時間',
         '資源稼動終了時間', '資源時間', '資源単価', '資源金額', '資源理由ｺｰﾄﾞ', '資源理由名称', '資源原価科目ｺｰﾄﾞ',
         '資源原価科目名称', '備考', '登録ID', '登録日時', '更新ID', '更新日時'],axis=1)
-        
+        print(df_list_cut)
 
         #作業日の日の表示方法をdatatimeに変更
         df_list_cut['作業日'] = pd.to_datetime(df_list_cut['作業日'])
@@ -80,7 +89,7 @@ def upload_file(request):
             dfs[i] = year_month_dfs
 
 
-        
+        print(dfs)
 
         import pandas as pd
         #月ごとに分割したデータを修正して格納する、最終結果のリストを作成
@@ -118,9 +127,12 @@ def upload_file(request):
                 result_dfs.append(df_sum_not_d)
 
         # 結果を表示
+        for df_result in result_dfs:
+            print(df_result)
 
         #分割したデータを結合し、1つのデータフレームにする
         sum = 0
+
         for df_result in result_dfs:
             df_files = df_result
             if sum == 0 :
@@ -128,16 +140,24 @@ def upload_file(request):
                 sum = sum + 1
             else:
                 final_result = pd.concat([final_result, df_files], axis=0,ignore_index = True)
-                
+
+
+        print(final_result)
         #excelに貼り付け♪
-        output_path = os.path.join(settings.BASE_DIR, 'output/集計.xlsx')
+        final_result.to_excel("/Users/takas/Desktop/230208_工数分析/集計.xlsx")
+        #excelに貼り付け♪
+        output_path = os.path.join(settings.BASE_DIR, '集計.xlsx')
         final_result.to_excel(output_path, index=False)
 
-        # ファイルのダウンロード
         if os.path.exists(output_path):
             with open(output_path, 'rb') as file:
-                response = FileResponse(file)
-                response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                response = HttpResponse(file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                 response['Content-Disposition'] = 'attachment; filename="集計.xlsx"'
+                os.remove(output_path)  # ダウンロード後にファイルを削除
                 return response
-    return render(request, 'syuukei/upload.html')
+        else:
+            print("ファイルが見つかりません")
+
+    else:
+        return render(request, 'syuukei/upload.html')
+

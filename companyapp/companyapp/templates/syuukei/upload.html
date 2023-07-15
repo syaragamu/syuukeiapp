@@ -5,10 +5,43 @@
     <title>upload_file</title>
 </head>
 <body>
-    <form method="POST" action="{% url 'syuukei:upload_file' %}" enctype="multipart/form-data">
+    <form id="uploadForm" action="{% url 'syuukei:upload_file' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="file" name="files" multiple>
+        <input type="file" name="files" id="folderInput" webkitdirectory directory multiple>
         <input type="submit" value="Upload">
     </form>
+    
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            var folderInput = document.getElementById('folderInput');
+            var files = folderInput.files;
+    
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+    
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', "{% url 'syuukei:upload_file' %}");
+            xhr.setRequestHeader("X-CSRFToken", document.getElementsByName('csrfmiddlewaretoken')[0].value);
+            xhr.send(formData);
+        });
+    </script>
 </body>
-</html>
