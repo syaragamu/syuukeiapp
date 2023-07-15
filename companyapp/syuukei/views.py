@@ -1,17 +1,18 @@
+from django.shortcuts import render,redirect
+from django.http import FileResponse,HttpResponse
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import datetime    # Python 標準
+import numpy as np
+import openpyxl
+import seaborn as sns
+import glob,shutil
+import os
+from django.conf import settings
+import tempfile
 
 def upload_file(request):
-    from django.shortcuts import render,redirect
-    from django.http import FileResponse,HttpResponse
     import pandas as pd
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    import datetime    # Python 標準
-    import numpy as np
-    import openpyxl
-    import seaborn as sns
-    import glob
-    import os
-    from django.conf import settings
     if request.method == 'POST' and request.FILES.getlist('files'):
         files = request.FILES.getlist('files')
 
@@ -146,18 +147,16 @@ def upload_file(request):
         #excelに貼り付け♪
         final_result.to_excel("/Users/takas/Desktop/230208_工数分析/集計.xlsx")
         #excelに貼り付け♪
-        output_path = os.path.join(settings.BASE_DIR, '集計.xlsx')
+        output_path = os.path.join(settings.MEDIA_ROOT, '集計.xlsx')
         final_result.to_excel(output_path, index=False)
 
         if os.path.exists(output_path):
             with open(output_path, 'rb') as file:
                 response = HttpResponse(file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                 response['Content-Disposition'] = 'attachment; filename="集計.xlsx"'
-                os.remove(output_path)  # ダウンロード後にファイルを削除
+                print("uuu")
                 return response
         else:
-            print("ファイルが見つかりません")
-
+            return HttpResponse("ファイルが見つかりません")
     else:
-        return render(request, 'syuukei/upload.html')
-
+        return render(request,"syuukei/upload.html")
