@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>upload_file</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'syuukei:upload_file' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="files" multiple>
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
