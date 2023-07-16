@@ -3,45 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <title>upload_file</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+
+        #uploadForm {
+            margin-top: 20px;
+        }
+        #folderInput::file-selector-button {
+            visibility: hidden;
+            width: 0;
+        }
+
+        .custom-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-button:hover {
+            background-color: #0056b3;
+        }
+
+        .custom-file-label {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: 2px solid #007BFF;
+            border-radius: 4px;
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+
+        .custom-file-label:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .upload-instructions {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .download-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #e23f12;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <form id="uploadForm" action="{% url 'syuukei:upload_file' %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="files" id="folderInput" webkitdirectory directory multiple>
-        <input type="submit" value="Upload">
-    </form>
-    
-    <script>
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-    
-            var folderInput = document.getElementById('folderInput');
-            var files = folderInput.files;
-    
-            var formData = new FormData();
-            for (var i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
-    
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', "{% url 'syuukei:upload_file' %}");
-            xhr.setRequestHeader("X-CSRFToken", document.getElementsByName('csrfmiddlewaretoken')[0].value);
-            xhr.send(formData);
-        });
-    </script>
+    {% if success %}
+        <h1>{{ success }}</h1>
+        <a href="../download" class="custom-button download-link">集計.xlsxのダウンロードはこちら</a>
+        <p>なお、一度ダウンロードされますと、自動的に集計.xlsxの内容が削除されますのでご安心ください。</p>
+        <a href="" class="custom-button back-link">アップロードページに戻る</a>
+    {% else %}
+        <form id="uploadForm" action="{% url 'syuukei:upload_file' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="folderInput" class="custom-file-label">フォルダを選択</label>
+            <input type="file" name="files" id="folderInput" webkitdirectory directory multiple>
+            <button type="submit" class="custom-button">Upload</button>
+        </form>
+        <div class="upload-instructions">
+            <p>使用方法:</p>
+            <ul>
+                <li>"○○(会社員名).xlsx"のファイルが全て入ったフォルダをアップロードしてください。</li>
+                <li>すると、全ての会社員データを月ごとに分割し、整理された"集計.xlsx"が生成されます。</li>
+                <li>拡張子が".xlsx"以外の関係ないファイルが混ざっている分には大丈夫ですが、"集計.xlsx"以外の、拡張子が.xlsxとなっているファイルを全て読み込みますので、会社で指定された型以外の.xlsxファイルを含んでいますと、集計.xlsxが生成されません。</li>
+            </ul>
+        </div>
+        <p>アップロードして10秒程度で集計.xlsxsが生成されると思います。生成に成功しても失敗しても画面は切り替わります。<br>生成できない原因としては、会社指定の型のxlsxファイルが含まれていない、もしくは会社指定の型以外のxlsxファイルなどが含まれている可能性が高いです。</p>
+    {% endif %}
 </body>
+</html>
