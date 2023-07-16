@@ -6,11 +6,9 @@ import datetime    # Python 標準
 import numpy as np
 import openpyxl
 import seaborn as sns
-import glob,shutil
 import os
 from django.conf import settings
-import tempfile
-import unicodedata
+
 
 
 
