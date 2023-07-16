@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-!iw5-5k*us52=6%1*u1%3j)c$peth#yj(26yl&=(*$p!xc-zqr
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['syaragamu.pythonanywhere.com']
+ALLOWED_HOSTS = ['syaragamu.pythonanywhere.com','127.0.0.1']
 
 # Application definition
 

@@ -13,6 +13,7 @@ def upload_file(request):
         try:
 
             files = request.FILES.getlist('files')
+            media_loot = "companyapp/"
 
             print(files)
 
@@ -145,7 +146,7 @@ def upload_file(request):
             #excelに貼り付け♪
             final_result.to_excel("/Users/takas/Desktop/230208_工数分析/集計.xlsx")
             #excelに貼り付け♪
-            output_path = os.path.join(settings.MEDIA_ROOT, '集計.xlsx')
+            output_path = os.path.join(media_loot, '集計.xlsx')
             final_result.to_excel(output_path, index=False)
             print("uuu")
             success = '集計.xlsxの生成が完了しました'
@@ -158,7 +159,8 @@ def upload_file(request):
         
 
 def download_file(request):
-    output_path = os.path.join(settings.MEDIA_ROOT, '集計.xlsx')
+    media_loot = "companyapp/"
+    output_path = os.path.join(media_loot, '集計.xlsx')
     if os.path.exists(output_path):
         with open(output_path, 'rb') as file:
             response = HttpResponse(file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
