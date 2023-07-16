@@ -11,7 +11,7 @@ import os
 from django.conf import settings
 import tempfile
 import unicodedata
-from background_task import background
+
 
 
 
