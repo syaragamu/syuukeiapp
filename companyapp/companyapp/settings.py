@@ -63,7 +63,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': 'companyapp/logfile.log',  # Replace with the actual path to your log file
+            'filename': os.path.join(BASE_DIR, 'companyapp', 'logfile.log'),  # Replace with the actual path to your log file
         },
     },
     'loggers': {
@@ -134,7 +134,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = "companyapp/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'companyapp',)
 
 MEDIA_URL =  '/media/'
 # Static files (CSS, JavaScript, Images)
