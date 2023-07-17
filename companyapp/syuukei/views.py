@@ -2,20 +2,25 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 import os
 from django.conf import settings
-
+import logging
 
 
 
 
 def upload_file(request):
     import pandas as pd
+    logger = logging.getLogger('django')  # Get the logger with the 'django' name specified in LOGGING settings
     if request.method == 'POST' and request.FILES.getlist('files'):
         try:
 
             files = request.FILES.getlist('files')
-            
+
 
             print(files)
+            logger.info("Before reading files.")
+            for file in files:
+                logger.info(file.name)
+
 
             #カレントディレクトリに含まれるファイル、フォルダを取得
             #files = glob.glob('*.xlsx')
@@ -37,6 +42,7 @@ def upload_file(request):
             sum = 0
 
             for i in range(len(files)):
+                logger.info(f"Reading file: {files[i].name}")
                 df_files = pd.read_excel(files[i], sheet_name=0, header=0)
                 if sum == 0 :
                     df_all = df_files
@@ -143,6 +149,8 @@ def upload_file(request):
 
 
             print(final_result)
+            logger.info("Before writing to Excel.")
+            logger.info(final_result)
             #excelに貼り付け♪
             output_path = os.path.join(settings.MEDIA_ROOT,'集計.xlsx')
             final_result.to_excel(output_path, index=False)

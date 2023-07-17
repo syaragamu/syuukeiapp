@@ -54,6 +54,26 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'companyapp.urls'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'companyapp/logfile.log',  # Replace with the actual path to your log file
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',  # Set the desired logging level (INFO, WARNING, ERROR, etc.)
+        },
+    },
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
