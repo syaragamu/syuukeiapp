@@ -53,7 +53,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'companyapp.urls'
-
+""""""""""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -74,7 +74,7 @@ LOGGING = {
         },
     },
 }
-
+"""""""""""
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

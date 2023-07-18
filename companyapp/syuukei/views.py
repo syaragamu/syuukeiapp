@@ -17,9 +17,9 @@ def upload_file(request):
 
 
             print(files)
-            logger.info("Before reading files.")
-            for file in files:
-                logger.info(file.name)
+            #logger.info("Before reading files.")
+            #for file in files:
+                #logger.info(file.name)
 
 
             #カレントディレクトリに含まれるファイル、フォルダを取得
@@ -60,13 +60,9 @@ def upload_file(request):
             df_list = df_all
             #列のindexを表示
             df_list.columns
-            #必要な部分以外を全部切り落とす
-            df_list_cut = df_list.drop(['工数番号', '作業計上日', '事業部ｺｰﾄﾞ', '事業部名称', '部門ｺｰﾄﾞ', '部門略称',
-            '所属部門ｺｰﾄﾞ', '所属部門名称',  '社内指示番号', '社内指示行番号', '製番',
-            '製番状態', 'ﾘｽﾄ番号', '作業区分', '作業内容名称', '作業稼動開始時間', '作業稼動終了時間','作業時間', '作業単価', '作業金額', '作業理由ｺｰﾄﾞ', '作業理由名称',
-            '作業原価科目ｺｰﾄﾞ', '作業原価科目名称', '資源区分', '資源ｺｰﾄﾞ', '資源名称', '資源稼動開始時間',
-            '資源稼動終了時間', '資源時間', '資源単価', '資源金額', '資源理由ｺｰﾄﾞ', '資源理由名称', '資源原価科目ｺｰﾄﾞ',
-            '資源原価科目名称', '備考', '登録ID', '登録日時', '更新ID', '更新日時'],axis=1)
+
+            # Keep only the desired columns in df_list
+            df_list_cut = df_list[['作業日', '担当者ｺｰﾄﾞ', '担当者略称', '作業内容ｺｰﾄﾞ', '作業時間(時間単位)']]
             print(df_list_cut)
 
             #作業日の日の表示方法をdatatimeに変更
@@ -149,16 +145,16 @@ def upload_file(request):
 
 
             print(final_result)
-            logger.info("Before writing to Excel.")
-            logger.info(final_result)
+            #logger.info("Before writing to Excel.")
+            #logger.info(final_result)
             #excelに貼り付け♪
             output_path = os.path.join(settings.MEDIA_ROOT,'集計.xlsx')
             final_result.to_excel(output_path, index=False)
             print("uuu")
             success = '集計.xlsxの生成が完了しました'
             return render(request, "syuukei/upload.html", {'success': success})
-        except Exception as e:
-            logger.exception(f"エラーが発生しました： {str(e)}")
+        except Exception:
+            #logger.exception(f"エラーが発生しました： {str(e)}")
             return render(request, 'syuukei/download.html')
     else:
         return render(request, "syuukei/upload.html",)
