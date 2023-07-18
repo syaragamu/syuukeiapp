@@ -158,7 +158,7 @@ def upload_file(request):
             success = '集計.xlsxの生成が完了しました'
             return render(request, "syuukei/upload.html", {'success': success})
         except Exception as e:
-            logger.exception("Error occurred: s", str(e))
+            logger.exception(f"エラーが発生しました： {str(e)}")
             return render(request, 'syuukei/download.html')
     else:
         return render(request, "syuukei/upload.html",)
