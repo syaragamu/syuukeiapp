@@ -64,6 +64,7 @@ LOGGING = {
         'file': {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'companyapp', 'logfile.log'),  # Replace with the actual path to your log file
+            'encoding': 'utf-8',
         },
     },
     'loggers': {
