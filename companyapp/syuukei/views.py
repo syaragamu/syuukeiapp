@@ -147,11 +147,33 @@ def upload_file(request):
             print(final_result)
             #logger.info("Before writing to Excel.")
             #logger.info(final_result)
+            
+            df_list_cut_two =  df_list[["製番", '作業時間(時間単位)']]
+            # 製番 の頭文字がKT　のものを削除する。
+            df_seibann = df_list_cut_two[~df_list_cut_two['製番'].str.startswith('KT')]
+
+            # 製番の型の名前をリストを作成する。
+            seibann_name = df_seibann['製番'].unique()
+
+            # 新しいデータフレームを作成する。
+            result_df = pd.DataFrame(columns=['製番名', '合計時間'])
+
+            # それぞれの製番ごとの作業時間の合計時間を求める。それをresult_dfにする。
+            for name in seibann_name:
+                total_time = df_seibann[df_seibann['製番'] == name]['作業時間(時間単位)'].sum()
+                result_df = pd.concat([result_df, pd.DataFrame({'製番名': [name], '合計時間': [total_time]})], ignore_index=True)
+
+            # Print the resulting DataFrame
+            print(result_df)
+
             #excelに貼り付け♪
-            output_path = os.path.join(settings.MEDIA_ROOT,'集計.xlsx')
-            final_result.to_excel(output_path, index=False)
-            print("uuu")
-            success = '集計.xlsxの生成が完了しました'
+            #集計.xlsx
+            output_syuukei_path = os.path.join(settings.MEDIA_ROOT,'集計.xlsx')
+            final_result.to_excel(output_syuukei_path, index=False)
+            #製番.xlsx
+            output_seibann_path = os.path.join(settings.MEDIA_ROOT,'製番.xlsx')
+            result_df.to_excel(output_seibann_path, index=False)
+            success = '集計.xlsxと、製番.xlsxの生成が完了しました'
             return render(request, "syuukei/upload.html", {'success': success})
         except Exception:
             #logger.exception(f"エラーが発生しました： {str(e)}")
@@ -160,15 +182,26 @@ def upload_file(request):
         return render(request, "syuukei/upload.html",)
         
 
-def download_file(request):
-    output_path = os.path.join(settings.MEDIA_ROOT, '集計.xlsx')
-    if os.path.exists(output_path):
-        with open(output_path, 'rb') as file:
+def download_syuukei_file(request):
+    output_syuukei_path = os.path.join(settings.MEDIA_ROOT, '集計.xlsx')
+    if os.path.exists(output_syuukei_path):
+        with open(output_syuukei_path, 'rb') as file:
             response = HttpResponse(file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = 'attachment; filename="集計.xlsx"'
-        os.remove(output_path)
+        os.remove(output_syuukei_path)
         return response
     else:
-        return render(request,"syuukei/download.html")
+        return render(request, "syuukei/download.html")
+
+def download_seibann_file(request):
+    output_seibann_path = os.path.join(settings.MEDIA_ROOT, '製番.xlsx')
+    if os.path.exists(output_seibann_path):
+        with open(output_seibann_path, 'rb') as file:
+            response = HttpResponse(file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="製番.xlsx"'
+        os.remove(output_seibann_path)
+        return response
+    else:
+        return render(request, "syuukei/download.html")
     
 
