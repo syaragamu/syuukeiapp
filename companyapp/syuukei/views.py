@@ -148,22 +148,36 @@ def upload_file(request):
             #logger.info("Before writing to Excel.")
             #logger.info(final_result)
             
-            df_list_cut_two =  df_list[["製番", '作業時間(時間単位)']]
+            df_list_cut_two = df_list[["製番", '作業時間(時間単位)',"作業内容ｺｰﾄﾞ"]]
             # 製番 の頭文字がKT　のものを削除する。
             df_seibann = df_list_cut_two[~df_list_cut_two['製番'].str.startswith('KT')]
-
-            # 製番の型の名前をリストを作成する。
+            
+            
+            # 製番の型の名前、そして作業内容コードのリストを作成する。
             seibann_name = df_seibann['製番'].unique()
+            # ↓データフレーム内に含まれる全ての作業内容コードを引っ張ってリスト化するコード
+            #sagyou_naiyou_name_previous = df_seibann["作業内容ｺｰﾄﾞ"].unique()
+
+            # 作業内容コードを選別する。もし、作業時間コードに関して変更があったら、ここをいじる。
+            sagyou_naiyou_name = ["D1DFG", "D1DFI", "D1DFK", "D1DFW", "D1DFT", "D1DFE"]
+            # 作業内容のリストを作成。result_dfに反映するcolumnはこっち。順番が重要。
+            new_column_names = ["電気ハード", "電気ソフト", "取説作成", "デバック(社内)", "デバッグ(社外)", "業者との打ち合わせ"]
 
             # 新しいデータフレームを作成する。
-            result_df = pd.DataFrame(columns=['製番名', '合計時間'])
+            result_df = pd.DataFrame(columns=['製番名', '合計時間'] + new_column_names)
 
             # それぞれの製番ごとの作業時間の合計時間を求める。それをresult_dfにする。
             for name in seibann_name:
                 total_time = df_seibann[df_seibann['製番'] == name]['作業時間(時間単位)'].sum()
-                result_df = pd.concat([result_df, pd.DataFrame({'製番名': [name], '合計時間': [total_time]})], ignore_index=True)
+                sagyou_naiyou_time = []
+                for naiyou in sagyou_naiyou_name:
+                    total_naiyou_time = df_seibann[(df_seibann['製番'] == name) & (df_seibann["作業内容ｺｰﾄﾞ"] == naiyou)]['作業時間(時間単位)'].sum()
+                    sagyou_naiyou_time.append(total_naiyou_time)
+                result_dict = {'製番名': [name], '合計時間': [total_time]}
+                result_dict.update({naiyou: total_naiyou_time for naiyou, total_naiyou_time in zip(new_column_names, sagyou_naiyou_time)})
+                result_df_jizenn = pd.DataFrame(result_dict)
+                result_df = pd.concat([result_df, result_df_jizenn], ignore_index=True)
 
-            # Print the resulting DataFrame
             print(result_df)
 
             #excelに貼り付け♪
