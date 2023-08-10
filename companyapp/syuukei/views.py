@@ -153,13 +153,22 @@ def upload_file(request):
             df_seibann = df_list_cut_two[~df_list_cut_two['製番'].str.startswith('KT')]
             
             
+            # 作業内容コードの頭文字のD１かD2を削除する関数
+            def modify_sagyou_naiyou_D1(code):
+                return code.replace('D1', '')
+            
+            def modify_sagyou_naiyou_D2(code):
+                return code.replace('D2', '')
+
+            # D1かD2を削除する。
+            df_seibann["作業内容ｺｰﾄﾞ"] = df_seibann["作業内容ｺｰﾄﾞ"].apply(modify_sagyou_naiyou_D1)
+            df_seibann["作業内容ｺｰﾄﾞ"] = df_seibann["作業内容ｺｰﾄﾞ"].apply(modify_sagyou_naiyou_D2)
             # 製番の型の名前、そして作業内容コードのリストを作成する。
             seibann_name = df_seibann['製番'].unique()
-            # ↓データフレーム内に含まれる全ての作業内容コードを引っ張ってリスト化するコード
-            #sagyou_naiyou_name_previous = df_seibann["作業内容ｺｰﾄﾞ"].unique()
+            sagyou_naiyou_name_previous = df_seibann["作業内容ｺｰﾄﾞ"].unique()
 
             # 作業内容コードを選別する。もし、作業時間コードに関して変更があったら、ここをいじる。
-            sagyou_naiyou_name = ["D1DFG", "D1DFI", "D1DFK", "D1DFW", "D1DFT", "D1DFE"]
+            sagyou_naiyou_name = ["DFG", "DFI", "DFK", "DFW", "DFT", "DFE"]
             # 作業内容のリストを作成。result_dfに反映するcolumnはこっち。順番が重要。
             new_column_names = ["電気ハード", "電気ソフト", "取説作成", "デバック(社内)", "デバッグ(社外)", "業者との打ち合わせ"]
 
@@ -177,6 +186,7 @@ def upload_file(request):
                 result_dict.update({naiyou: total_naiyou_time for naiyou, total_naiyou_time in zip(new_column_names, sagyou_naiyou_time)})
                 result_df_jizenn = pd.DataFrame(result_dict)
                 result_df = pd.concat([result_df, result_df_jizenn], ignore_index=True)
+
 
             print(result_df)
 
