@@ -155,10 +155,10 @@ def upload_file(request):
             
             # 作業内容コードの頭文字のD１かD2を削除する関数
             def modify_sagyou_naiyou_D1(code):
-                return code.replace('D1', '')
+                return code.replace('D1DF', '')
             
             def modify_sagyou_naiyou_D2(code):
-                return code.replace('D2', '')
+                return code.replace('D2DF', '')
 
             # D1かD2を削除する。
             df_seibann["作業内容ｺｰﾄﾞ"] = df_seibann["作業内容ｺｰﾄﾞ"].apply(modify_sagyou_naiyou_D1)
@@ -168,9 +168,9 @@ def upload_file(request):
             sagyou_naiyou_name_previous = df_seibann["作業内容ｺｰﾄﾞ"].unique()
 
             # 作業内容コードを選別する。もし、作業時間コードに関して変更があったら、ここをいじる。
-            sagyou_naiyou_name = ["DFG", "DFI", "DFK", "DFW", "DFT", "DFE"]
+            sagyou_naiyou_name = ["A","B","E","G","H","I","K","N","Q","R","S","T","W","X","Y","Z",]
             # 作業内容のリストを作成。result_dfに反映するcolumnはこっち。順番が重要。
-            new_column_names = ["電気ハード", "電気ソフト", "取説作成", "デバック(社内)", "デバッグ(社外)", "業者との打ち合わせ"]
+            new_column_names = ["原低","客先","業者","電気H", "資料作成","電気S","デバ内","電追加","工程異常","電H構想","電S構想","デバ外","取説","仕様書","指示書","部品表"]
 
             # 新しいデータフレームを作成する。
             result_df = pd.DataFrame(columns=['製番名', '合計時間'] + new_column_names)
