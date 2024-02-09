@@ -98,7 +98,7 @@ def upload_file(request):
             result_dfs = []
 
             #月ごとのデータに、直接工数などの項目を計算して追加し修正する
-            for year, year_month_dfs in zip(range(2022, 2024), dfs):
+            for year, year_month_dfs in zip(range(2022, 2027), dfs):
                 for month, month_data in zip(range(1, 13), year_month_dfs):
                     if month_data.empty:
                         continue
